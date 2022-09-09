@@ -35,3 +35,27 @@
                (count-all-zeros(rest lst)))]))
       
   (count-all-zeros (skip-leading-zeros lst)))
+
+; 1(c)
+
+(define (encode-with-lengths lst)
+  (define (skip-leading-zeros lst)
+    (cond
+      [(empty? lst) lst]
+      [(= (first lst) 1) lst]
+      [else (skip-leading-zeros(rest lst))]))
+
+  (define (count prev cnter lst ans)
+    (cond
+     [(and (empty? lst) (= cnter 0)) (list)]
+     [(empty? lst) (cons cnter ans)]
+     [(and (empty? ans) (= cnter 0)) (count (first lst) 1 (rest lst) ans)]
+     [(= (first lst) prev) (count prev (+ 1 cnter) (rest lst) ans)]
+     [else (count (first lst) 1 (rest lst) (cons cnter ans))]))
+
+  
+  (reverse (count 0 0 (skip-leading-zeros lst) (list))))
+
+
+  
+
