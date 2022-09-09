@@ -63,6 +63,30 @@
     [(= (first (reverse lst)) 1) #t]
     [else #f]))
 
+; 1(e)
+
+(define (decrement lst)
+  (define (skip-leading-zeros lst)
+    (cond
+      [(empty? lst) lst]
+      [(= (first lst) 1) lst]
+      [else (skip-leading-zeros(rest lst))]))
+
+  (define (invert-bits bits res)
+    (cond
+      [(empty? bits) (reverse res)]
+      [(= (first bits) 1) (invert-bits (rest bits) (cons 0 res))]
+      [else (invert-bits (rest bits) (cons 1 res))]))
+
+  (define (helper temp lst)
+    (cond
+      [(empty? lst) (list 0)]
+      [(= (first lst) 1) (append (invert-bits temp (list)) (cons 0 (rest lst)))]
+      [else (helper (cons (first lst) temp) (rest lst))]))
+
+  (skip-leading-zeros (reverse (helper (list) (reverse lst)))))
+  
+  
 
   
 
