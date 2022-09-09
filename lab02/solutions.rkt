@@ -56,6 +56,13 @@
   
   (reverse (count 0 0 (skip-leading-zeros lst) (list))))
 
+; 1(d)
+
+(define (binary-odd? lst)
+  (cond
+    [(= (first (reverse lst)) 1) #t]
+    [else #f]))
+
 
   
 
