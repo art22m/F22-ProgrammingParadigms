@@ -17,6 +17,7 @@
 
   (calculate (reverse lst) 0))
                
+;(binary-to-decimal '(1 0 1 1 0)) ; ==> 22
 
 ; 1(b)
 
@@ -35,6 +36,8 @@
                (count-all-zeros(rest lst)))]))
       
   (count-all-zeros (skip-leading-zeros lst)))
+
+;(count-zeros '(0 0 0 1 0 1 1 0)) ; ==> 2
 
 ; 1(c)
 
@@ -56,6 +59,10 @@
   
   (reverse (count 0 0 (skip-leading-zeros lst) (list))))
 
+;(encode-with-lengths '(0 0 0 1 1 0 1 1 1 0 0)) ; ==> '(2 1 3 2)
+;(encode-with-lengths '()) ; ==> '()
+;(encode-with-lengths '(0 0)) ; ==> '()
+
 ; 1(d)
 
 (define (binary-odd? lst)
@@ -63,12 +70,15 @@
     [(= (first (reverse lst)) 1) #t]
     [else #f]))
 
+;(binary-odd? '(1 0 1 1 0)) ; ==> #f
+;(binary-odd? '(1 0 1 1 1)) ; ==> #t
+
 ; 1(e)
 
 (define (decrement lst)
   (define (skip-leading-zeros lst)
     (cond
-      [(empty? lst) lst]
+      [(empty? lst) (list 0)]
       [(= (first lst) 1) lst]
       [else (skip-leading-zeros(rest lst))]))
 
@@ -86,7 +96,9 @@
 
   (skip-leading-zeros (reverse (helper (list) (reverse lst)))))
   
-  
+;(decrement '(1 0 1 1 0)) ; ==> '(1 0 1 0 1)
+;(decrement '(1 0 0 0 0)) ; ==> '(1 1 1 1)
+;(decrement '(0)) ; ==> '(0)
 
   
 
