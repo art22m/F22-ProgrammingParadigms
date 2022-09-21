@@ -42,6 +42,24 @@
     [(sum? expr) (third expr)]
     [else (error "Given expr is not a sum:" expr)]))
 
+; check whether a given expression is a subtraction
+(define (sub? expr)
+  (cond
+    [(and (list? expr) (and (equal? (length expr) 3) (equal? (first expr) '-))) #t]
+    [else #f]))
+
+; extract minuend from a subtraction
+(define (minuend expr)
+  (cond
+    [(sub? expr) (second expr)]
+    [else (error "Given expr is not a subtraction:" expr)]))
+
+; extract second summand from a subtraction
+(define (subtrahend expr)
+  (cond
+    [(sub? expr) (third expr)]
+    [else (error "Given expr is not a subtraction:" expr)]))
+
 ; check whether a given expression is a product
 (define (product? expr)
    (cond
@@ -144,6 +162,12 @@
                        (derivative (summand-1 expr) var)
                        (derivative (summand-2 expr) var))]
 
+    ; Derivative for a substraction
+    [(sub? expr) (list '-
+                       (derivative (minuend expr) var)
+                       (derivative (subtrahend expr) var))]
+    
+
     ; Derivative for a product
     [(product? expr) (list '+
                            (list '*
@@ -151,7 +175,51 @@
                                  (multiplier-2 expr))
                            (list '*
                                  (multiplier-1 expr)
-                                 (derivative (multiplier-2 expr) var)))]))
+                                 (derivative (multiplier-2 expr) var)))]
+
+    ; Derivative for a exponentiation
+    [(exponentiation? expr) (list '+
+                                  (list '*
+                                        (list '^ (exponentiation-base expr) (exponentiation-power expr))
+                                        (list '*
+                                              (list 'log (exponentiation-base expr))
+                                              (derivative (exponentiation-power expr) var)))
+                                  (list '*
+                                        (list '^ (exponentiation-base expr) (list '- (exponentiation-power expr) 1))
+                                        (list '*
+                                              (exponentiation-power expr)
+                                              (derivative (exponentiation-base expr) var))))]
+    
+    ; Derivative for a sinus
+    [(sin? expr) (list '*
+                         (list 'cos (sin-arg expr))
+                         (derivative (sin-arg expr) var))]
+
+    ; Derivative for a cosinus
+    [(cos? expr) (list '*
+                         -1
+                         (list '*  
+                               (list 'sin (cos-arg expr))
+                               (derivative (cos-arg expr) var)))]
+
+    ; Derivative for a tangent
+    [(tan? expr) (list '*
+                       (list '^
+                             (list '^
+                                   (list 'cos (tan-arg expr))
+                                   2)
+                             -1)
+                       (derivative (tan-arg expr) var))]
+
+    ; Derivative for a logarithm
+    [(log? expr) (list '*
+                       (list '^
+                             (log-arg expr)
+                             -1)
+                       (derivative (log-arg expr) var))]
+
+    [else (error "Given expr is not valid:" expr)]))
+
 
 ; Test examples
 
@@ -164,6 +232,8 @@
 (derivative '(* (+ x y) (+ x (+ x x))) 'x)
 ; = '(+ (* (+ 1 0) (+ x (+ x x))) (* (+ x y) (+ 1 (+ 1 1))))
 
+(derivative '(sin (log x)) 'x)
+; (* (cos (log x)) (* (^ x -1) 1))
 
 ; Exercise 1.3
 ; Let's implement a recursive function simplify that simplifies
@@ -180,7 +250,15 @@
          [(and (number? (summand-1 expr)) (number? (summand-2 expr)))
                (+ (summand-1 expr) (summand-2 expr))]
          [else expr])]
-      
+
+      ; Simplify substraction
+      [(sub? expr)
+       (cond
+         [(equal? (subtrahend expr) 0) (minuend expr)]
+         [(and (number? (minuend expr)) (number? (subtrahend expr)))
+               (- (minuend expr) (subtrahend expr))]
+         [else expr])]
+
       ; Simplify product
       [(product? expr)
        (cond
@@ -236,6 +314,11 @@
                              (simplify (summand-1 expr))
                              (simplify (summand-2 expr))))]
 
+    [(sub? expr)
+     (simplify-at-root (list '-
+                             (simplify (minuend expr))
+                             (simplify (subtrahend expr))))]
+    
     [(product? expr)
      (simplify-at-root (list '*
                              (simplify (multiplier-1 expr))
@@ -277,6 +360,9 @@
 
 (simplify '(+ (log e) (+ (^ x 0) (cos 0))))
 ; 3
+
+(simplify (derivative '(^ x 3) 'x))
+; '(* (^ x 2) 3)
 
 
 ; Exercise 1.5
