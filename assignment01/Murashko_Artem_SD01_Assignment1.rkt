@@ -467,3 +467,18 @@
 
 (simplify '(+ 0 1 0 (+ (* 1 y z) (* x 0 z) (* x y 0))))
 ; '(+ 1 (* y z))
+
+
+; Exercise 1.8
+; Implement a function variables-of that returns a (sorted) list of
+; distinct variables used in a given expression:
+
+(define (variables-of expr)
+  (remove-duplicates
+   (sort
+    (filter variable? (flatten expr)) symbol<?)))
+    
+; Test examples
+
+(variables-of '(+ 1 x y (* x y z)))
+; '(x y z)
