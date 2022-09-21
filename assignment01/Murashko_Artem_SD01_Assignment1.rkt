@@ -4,10 +4,11 @@
 #| Programming Paradigms Fall 2022 |#
 #|      Homework Assignment #1     |#
 
-; In this assignment I need to implement the tools for symbolic differentiation of expressions.
-; Let me introduce helper predicates and functions.
+; In this assignment I need to implement the tools for symbolic differentiation
+; of expressions.
 
-; Exercise 2.1
+; Exercise 1.2
+; Let me introduce helper predicates and functions.
 
 ; check whether a given expression is a variable
 (define (variable? expr)
@@ -57,4 +58,42 @@
   (cond
     [(product? expr) (third expr)]
     [else (error "Given expr is not a product:" expr)]))
+
+; Exercise 1.2
+; Let's implement a recursive function derivative that computes a symbolic
+; derivative of a given expression with respect to a given variable.
+
+(define (derivative expr var)
+  (cond
+    ; Derivative for a constant
+    [(number? expr) 0]
+
+    ; Derivartive for a variable
+    [(variable? expr) (if (equal? expr var) 1 0)]
+
+    ; Derivative for a sum
+    [(sum? expr) (list '+
+                       (derivative (summand-1 expr) var)
+                       (derivative (summand-2 expr) var))]
+
+    ; Derivative for a product
+    [(product? expr) (list '+
+                           (list '*
+                                 (derivative (multiplier-1 expr) var)
+                                 (multiplier-2 expr))
+                           (list '*
+                                 (multiplier-1 expr)
+                                 (derivative (multiplier-2 expr) var)))]))
+
+; Test examples
+
+(derivative '(+ 1 x) 'x)
+; = '(+ 0 1)
+
+(derivative '(* 2 y) 'y)
+; = '(+ (* 0 y) (* 2 1))
+
+(derivative '(* (+ x y) (+ x (+ x x))) 'x)
+; = '(+ (* (+ 1 0) (+ x (+ x x))) (* (+ x y) (+ 1 (+ 1 1))))
+    
 
