@@ -183,7 +183,7 @@
      #t]
     [else #f]))
 
-; convert polyvariadic expression into prefix form
+; convert polyvariadic expression into normal prefix form
 (define (polyvariadic-to-normal expr)
   (cond
     [(polyvariadic-sum? expr)
@@ -438,7 +438,7 @@
                              (simplify (log-arg expr))))]
 
     ; If we have polyvariadic sum or product, firstly we need to
-    ; convert it to prefix form. After that we can work as before.
+    ; convert it to normal prefix form. After that we can work as before.
     [(or (polyvariadic-sum? expr) (polyvariadic-product? expr))
      (simplify (polyvariadic-to-normal expr))]
     
