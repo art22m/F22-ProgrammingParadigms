@@ -61,4 +61,11 @@ The solution with tail recursion produces more steps,
 but we use less memory since we do not store intermediate calculations in the memory.
 
 |#
+
+(define (dec n) (- n 1))
+(define (f n)
+  (cond
+    [(<= n 2) (- 10 n)]
+    [else (* (f (dec (dec n))) (f (dec n)))]))
   
+(f 3)
