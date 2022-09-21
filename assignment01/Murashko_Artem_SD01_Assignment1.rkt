@@ -147,14 +147,36 @@
 ; check whether a given expression is a polyvariadic sum
 (define (polyvariadic-sum? expr)
   (cond
-    [(and (list? expr) (and (> (length expr) 2) (equal? (first expr) '+))) #t]
+    [(and (list? expr) (and (> (length expr) 3) (equal? (first expr) '+))) #t]
     [else #f]))
 
 ; check whether a given expression is a polyvariadic product
 (define (polyvariadic-product? expr)
    (cond
-    [(and (list? expr) (and (> (length expr) 2) (equal? (first expr) '*))) #t]
+    [(and (list? expr) (and (> (length expr) 3) (equal? (first expr) '*))) #t]
     [else #f]))
+
+; convert polyvariadic expression to 'normal' form
+(define (polyvariadic-to-normal expr)
+  (cond
+    [(polyvariadic-sum? expr)
+     (list '+
+           (polyvariadic-to-normal (second expr))
+           (polyvariadic-to-normal (cons '+ (rest (rest expr)))))]
+    [(sum? expr)
+     (list '+
+           (polyvariadic-to-normal (second expr))
+           (polyvariadic-to-normal (third expr)))]
+    [(polyvariadic-product? expr)
+     (list '*
+           (polyvariadic-to-normal (second expr))
+           (polyvariadic-to-normal (cons '* (rest (rest expr)))))]
+    [(product? expr)
+     (list '*
+           (polyvariadic-to-normal (second expr))
+           (polyvariadic-to-normal (third expr)))]
+    [else expr]))
+         
 
 ; Exercise 1.2
 ; Let's implement a recursive function derivative that computes a symbolic
@@ -347,10 +369,7 @@
          [(equal? (log-arg expr) 1) 0]
          [(equal? (log-arg expr) 'e) 1]
          [else expr])]
-
-      ; Simplify polyvariadic sum
-      
-      
+            
       [else (error "Given expr is not valid:" expr)]))
 
   (cond
@@ -389,6 +408,11 @@
     [(log? expr)
      (simplify-at-root (list 'log
                              (simplify (log-arg expr))))]
+
+    ; If we have polyvariadic sum or product, firstly we need to
+    ; convert it to 'normal' form. After that we can work as before.
+    [(or (polyvariadic-sum? expr) (polyvariadic-product? expr))
+     (simplify (polyvariadic-to-normal expr))]
     
     [else expr]))
 
@@ -440,3 +464,6 @@
 
 (derivative '(+ 1 x y (* x y z)) 'x)
 ; '(+ 0 1 0 (+ (* 1 y z) (* x 0 z) (* x y 0)))
+
+(simplify '(+ 0 1 0 (+ (* 1 y z) (* x 0 z) (* x y 0))))
+; '(+ 1 (* y z))
