@@ -176,18 +176,51 @@
        (cond
          [(equal? (summand-1 expr) 0) (summand-2 expr)]
          [(equal? (summand-2 expr) 0) (summand-1 expr)]
-         [(and (number? (summand-1 expr)) (number? (summand-2 expr))
-               (+ (summand-1 expr) (summand-2 expr)))]
+         [(and (number? (summand-1 expr)) (number? (summand-2 expr)))
+               (+ (summand-1 expr) (summand-2 expr))]
          [else expr])]
+      
       [(product? expr)
        (cond
          [(equal? (multiplier-1 expr) 1) (multiplier-2 expr)]
          [(equal? (multiplier-2 expr) 1) (multiplier-1 expr)]
          [(equal? (multiplier-1 expr) 0) 0]
          [(equal? (multiplier-2 expr) 0) 0]
-         [(and (number? (multiplier-1 expr)) (number? (multiplier-2 expr))
-               (* (multiplier-1 expr) (multiplier-2 expr)))]
+         [(and (number? (multiplier-1 expr)) (number? (multiplier-2 expr)))
+               (* (multiplier-1 expr) (multiplier-2 expr))]
          [else expr])]
+
+      [(exponentiation? expr)
+       (cond
+         [(equal? (exponentiation-base expr) 0) 0]
+         [(equal? (exponentiation-base expr) 1) 1]
+         [(equal? (exponentiation-power expr) 0) 1]
+         [(equal? (exponentiation-power expr) 1) (exponentiation-base expr)]
+         [(and (number? (exponentiation-base expr)) (number? (exponentiation-power expr)))
+               (expt (exponentiation-base expr) (exponentiation-power expr))]
+         [else expr])]
+
+      [(sin? expr)
+       (cond
+         [(equal? (sin-arg expr) 0) 0]
+         [else expr])]
+
+      [(cos? expr)
+       (cond
+         [(equal? (cos-arg expr) 0) 1]
+         [else expr])]
+
+      [(tan? expr)
+       (cond
+         [(equal? (tan-arg expr) 0) 0]
+         [else expr])]
+
+      [(log? expr)
+       (cond
+         [(equal? (log-arg expr) 1) 0]
+         [(equal? (log-arg expr) 'e) 1]
+         [else expr])]
+      
       [else (error "Given expr is not valid:" expr)]))
 
   (cond
@@ -195,10 +228,33 @@
      (simplify-at-root (list '+
                              (simplify (summand-1 expr))
                              (simplify (summand-2 expr))))]
+
     [(product? expr)
      (simplify-at-root (list '*
                              (simplify (multiplier-1 expr))
                              (simplify (multiplier-2 expr))))]
+    
+    [(exponentiation? expr)
+     (simplify-at-root (list '^
+                             (simplify (exponentiation-base expr))
+                             (simplify (exponentiation-power expr))))]
+
+    [(sin? expr)
+     (simplify-at-root (list 'sin
+                             (simplify (sin-arg expr))))]
+
+    [(cos? expr)
+     (simplify-at-root (list 'cos
+                             (simplify (cos-arg expr))))]
+
+    [(tan? expr)
+     (simplify-at-root (list 'tan
+                             (simplify (tan-arg expr))))]
+
+    [(log? expr)
+     (simplify-at-root (list 'log
+                             (simplify (log-arg expr))))]
+    
     [else expr]))
 
 ; Test examples
@@ -211,6 +267,9 @@
 
 (simplify '(+ (* (+ 1 0) (+ x (+ x x))) (* (+ x y) (+ 1 (+ 1 1)))))
 ; '(+ (+ x (+ x x)) (* (+ x y) 3))
+
+(simplify '(+ (log e) (+ (^ x 0) (cos 0))))
+; 3
 
 
 ; Exercise 1.5
