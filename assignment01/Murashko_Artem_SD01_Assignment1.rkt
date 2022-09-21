@@ -156,7 +156,7 @@
     [(and (list? expr) (and (> (length expr) 3) (equal? (first expr) '*))) #t]
     [else #f]))
 
-; convert polyvariadic expression to 'normal' form
+; convert polyvariadic expression into prefix form
 (define (polyvariadic-to-normal expr)
   (cond
     [(polyvariadic-sum? expr)
@@ -410,7 +410,7 @@
                              (simplify (log-arg expr))))]
 
     ; If we have polyvariadic sum or product, firstly we need to
-    ; convert it to 'normal' form. After that we can work as before.
+    ; convert it to prefix form. After that we can work as before.
     [(or (polyvariadic-sum? expr) (polyvariadic-product? expr))
      (simplify (polyvariadic-to-normal expr))]
     
@@ -473,6 +473,9 @@
 ; Implement a function variables-of that returns a (sorted) list of
 ; distinct variables used in a given expression:
 
+; Firtsly I flat the expression, i.e. remove the braces.
+; Then I leave only variables using filter.
+; After that I sort by symbols and remove duplicates.
 (define (variables-of expr)
   (remove-duplicates
    (sort
