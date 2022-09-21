@@ -8,7 +8,7 @@
 ; of expressions.
 
 
-; Exercise 1.1
+; Exercise 1.1 & 1.6
 ; Let me introduce helper predicates and functions.
 
 ; check whether a given expression is a variable
@@ -59,6 +59,72 @@
   (cond
     [(product? expr) (third expr)]
     [else (error "Given expr is not a product:" expr)]))
+
+; check whether a given expression is an exponentiation
+(define (exponentiation? expr)
+   (cond
+    [(and (list? expr) (and (equal? (length expr) 3) (equal? (first expr) '^))) #t]
+    [else #f]))
+
+; extract a base from an exponentiation
+(define (exponentiation-base expr)
+  (cond
+    [(exponentiation? expr) (second expr)]
+    [else (error "Given expr is not an exponentiation:" expr)]))
+
+; extract a power from an exponentiation
+(define (exponentiation-power expr)
+  (cond
+    [(exponentiation? expr) (third expr)]
+    [else (error "Given expr is not an exponentiation:" expr)]))
+
+; check whether a given expression is a sinus
+(define (sin? expr)
+   (cond
+    [(and (list? expr) (and (equal? (length expr) 2) (equal? (first expr) 'sin))) #t]
+    [else #f]))
+
+; extract an argument from a sinus
+(define (sin-arg expr)
+  (cond
+    [(sin? expr) (second expr)]
+    [else (error "Given expr is not a sinus" expr)]))
+
+; check whether a given expression is a cosinus
+(define (cos? expr)
+   (cond
+    [(and (list? expr) (and (equal? (length expr) 2) (equal? (first expr) 'cos))) #t]
+    [else #f]))
+
+; extract an argument from a cosinus
+(define (cos-arg expr)
+  (cond
+    [(cos? expr) (second expr)]
+    [else (error "Given expr is not a cosinus" expr)]))
+
+; check whether a given expression is a tangent
+(define (tan? expr)
+   (cond
+    [(and (list? expr) (and (equal? (length expr) 2) (equal? (first expr) 'tan))) #t]
+    [else #f]))
+
+; extract an argument from a tangent
+(define (tan-arg expr)
+  (cond
+    [(tan? expr) (second expr)]
+    [else (error "Given expr is not a tangent" expr)]))
+
+; check whether a given expression is a natural logarithm
+(define (log? expr)
+   (cond
+    [(and (list? expr) (and (equal? (length expr) 2) (equal? (first expr) 'log))) #t]
+    [else #f]))
+
+; extract an argument from a natural logarithm
+(define (log-arg expr)
+  (cond
+    [(log? expr) (second expr)]
+    [else (error "Given expr is not a natural logarithm" expr)]))
 
 
 ; Exercise 1.2
