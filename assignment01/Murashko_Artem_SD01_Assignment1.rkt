@@ -7,7 +7,8 @@
 ; In this assignment I need to implement the tools for symbolic differentiation
 ; of expressions.
 
-; Exercise 1.2
+
+; Exercise 1.1
 ; Let me introduce helper predicates and functions.
 
 ; check whether a given expression is a variable
@@ -59,6 +60,7 @@
     [(product? expr) (third expr)]
     [else (error "Given expr is not a product:" expr)]))
 
+
 ; Exercise 1.2
 ; Let's implement a recursive function derivative that computes a symbolic
 ; derivative of a given expression with respect to a given variable.
@@ -95,5 +97,51 @@
 
 (derivative '(* (+ x y) (+ x (+ x x))) 'x)
 ; = '(+ (* (+ 1 0) (+ x (+ x x))) (* (+ x y) (+ 1 (+ 1 1))))
-    
 
+
+; Exercise 1.3
+; Let's implement a recursive function simplify that simplifies
+; an expression using the following rules:
+
+(define (simplify expr)
+  (define (simplify-at-root expr)
+    (cond
+      [(sum? expr)
+       (cond
+         [(equal? (summand-1 expr) 0) (summand-2 expr)]
+         [(equal? (summand-2 expr) 0) (summand-1 expr)]
+         [(and (number? (summand-1 expr)) (number? (summand-2 expr))
+               (+ (summand-1 expr) (summand-2 expr)))]
+         [else expr])]
+      [(product? expr)
+       (cond
+         [(equal? (multiplier-1 expr) 1) (multiplier-2 expr)]
+         [(equal? (multiplier-2 expr) 1) (multiplier-1 expr)]
+         [(equal? (multiplier-1 expr) 0) 0]
+         [(equal? (multiplier-2 expr) 0) 0]
+         [(and (number? (multiplier-1 expr)) (number? (multiplier-2 expr))
+               (* (multiplier-1 expr) (multiplier-2 expr)))]
+         [else expr])]
+      [else (error "Given expr is not valid:" expr)]))
+
+  (cond
+    [(sum? expr)
+     (simplify-at-root (list '+
+                             (simplify (summand-1 expr))
+                             (simplify (summand-2 expr))))]
+    [(product? expr)
+     (simplify-at-root (list '*
+                             (simplify (multiplier-1 expr))
+                             (simplify (multiplier-2 expr))))]
+    [else expr]))
+
+; Test examples
+
+(simplify '(+ 0 1))
+; 1
+
+(simplify '(+ (* 0 y) (* 2 1)))
+; 2
+
+(simplify '(+ (* (+ 1 0) (+ x (+ x x))) (* (+ x y) (+ 1 (+ 1 1)))))
+; '(+ (+ x (+ x x)) (* (+ x y) 3))
