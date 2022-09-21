@@ -144,6 +144,17 @@
     [(log? expr) (second expr)]
     [else (error "Given expr is not a natural logarithm" expr)]))
 
+; check whether a given expression is a polyvariadic sum
+(define (polyvariadic-sum? expr)
+  (cond
+    [(and (list? expr) (and (> (length expr) 2) (equal? (first expr) '+))) #t]
+    [else #f]))
+
+; check whether a given expression is a polyvariadic product
+(define (polyvariadic-product? expr)
+   (cond
+    [(and (list? expr) (and (> (length expr) 2) (equal? (first expr) '*))) #t]
+    [else #f]))
 
 ; Exercise 1.2
 ; Let's implement a recursive function derivative that computes a symbolic
@@ -178,17 +189,20 @@
                                  (derivative (multiplier-2 expr) var)))]
 
     ; Derivative for a exponentiation
-    [(exponentiation? expr) (list '+
-                                  (list '*
-                                        (list '^ (exponentiation-base expr) (exponentiation-power expr))
-                                        (list '*
-                                              (list 'log (exponentiation-base expr))
-                                              (derivative (exponentiation-power expr) var)))
-                                  (list '*
-                                        (list '^ (exponentiation-base expr) (list '- (exponentiation-power expr) 1))
-                                        (list '*
-                                              (exponentiation-power expr)
-                                              (derivative (exponentiation-base expr) var))))]
+    ; Actually, subtraction can be replaced by a sum, where one of the terms
+    ; is multiplied by -1.
+    [(exponentiation? expr)
+     (list '+
+           (list '*
+                 (list '^ (exponentiation-base expr) (exponentiation-power expr))
+                 (list '*
+                       (list 'log (exponentiation-base expr))
+                       (derivative (exponentiation-power expr) var)))
+           (list '*
+                 (list '^ (exponentiation-base expr) (list '- (exponentiation-power expr) 1))
+                 (list '*
+                       (exponentiation-power expr)
+                       (derivative (exponentiation-base expr) var))))]
     
     ; Derivative for a sinus
     [(sin? expr) (list '*
@@ -203,6 +217,7 @@
                                (derivative (cos-arg expr) var)))]
 
     ; Derivative for a tangent
+    ; Division can be replaced by raising to -1 power: 1/x = x^(-1)
     [(tan? expr) (list '*
                        (list '^
                              (list '^
@@ -217,6 +232,33 @@
                              (log-arg expr)
                              -1)
                        (derivative (log-arg expr) var))]
+
+    ; Derivative for a polyvariadic sum
+    
+    ; Just go through all summands and take the derivative of it.
+    ; The answer will be still polyvariadic.
+    
+    [(polyvariadic-sum? expr) (cons '+
+                                    (map
+                                     (lambda (curr) (derivative curr var))
+                                     (rest expr)))]
+
+
+    ; Derivative for a polyvariadic product
+    
+    ; For every multiplier take derivative of it, multiply
+    ; by the rest multipliers and add sum it.
+    ; For example, (abc)' = a'bc + ab'c + abc'.   
+    ; The answer will be still polyvardic.
+    
+    [(polyvariadic-product? expr)
+     (cons '+
+           (map
+            (lambda (curr)
+              (cons '*
+                    (cons (derivative curr var)
+                          (remove curr (rest expr)))))
+            (rest expr)))]
 
     [else (error "Given expr is not valid:" expr)]))
 
@@ -305,6 +347,9 @@
          [(equal? (log-arg expr) 1) 0]
          [(equal? (log-arg expr) 'e) 1]
          [else expr])]
+
+      ; Simplify polyvariadic sum
+      
       
       [else (error "Given expr is not valid:" expr)]))
 
@@ -388,3 +433,10 @@
 
 (to-infix '(+ (+ a b) (* c d)))
 ; '((a + b) + (c * d))
+
+
+; Exercise 1.7
+; Test examples
+
+(derivative '(+ 1 x y (* x y z)) 'x)
+; '(+ 0 1 0 (+ (* 1 y z) (* x 0 z) (* x y 0)))
