@@ -172,6 +172,7 @@
 (define (simplify expr)
   (define (simplify-at-root expr)
     (cond
+      ; Simplify sum
       [(sum? expr)
        (cond
          [(equal? (summand-1 expr) 0) (summand-2 expr)]
@@ -180,6 +181,7 @@
                (+ (summand-1 expr) (summand-2 expr))]
          [else expr])]
       
+      ; Simplify product
       [(product? expr)
        (cond
          [(equal? (multiplier-1 expr) 1) (multiplier-2 expr)]
@@ -190,6 +192,7 @@
                (* (multiplier-1 expr) (multiplier-2 expr))]
          [else expr])]
 
+      ; Simplify exponentiation
       [(exponentiation? expr)
        (cond
          [(equal? (exponentiation-base expr) 0) 0]
@@ -200,21 +203,25 @@
                (expt (exponentiation-base expr) (exponentiation-power expr))]
          [else expr])]
 
+      ; Simplify sinus
       [(sin? expr)
        (cond
          [(equal? (sin-arg expr) 0) 0]
          [else expr])]
 
+      ; Simplify cosinus
       [(cos? expr)
        (cond
          [(equal? (cos-arg expr) 0) 1]
          [else expr])]
 
+      ; Simplify tangent
       [(tan? expr)
        (cond
          [(equal? (tan-arg expr) 0) 0]
          [else expr])]
 
+      ; Simplify logarithm
       [(log? expr)
        (cond
          [(equal? (log-arg expr) 1) 0]
