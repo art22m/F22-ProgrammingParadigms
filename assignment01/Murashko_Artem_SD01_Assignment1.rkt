@@ -27,7 +27,10 @@
 ; check whether a given expression is a sum
 (define (sum? expr)
   (cond
-    [(and (list? expr) (and (equal? (length expr) 3) (equal? (first expr) '+))) #t]
+    [(and (list? expr)
+          (and (equal? (length expr) 3)
+               (equal? (first expr) '+)))
+     #t]
     [else #f]))
 
 ; extract first summand from a sum
@@ -45,7 +48,10 @@
 ; check whether a given expression is a subtraction
 (define (sub? expr)
   (cond
-    [(and (list? expr) (and (equal? (length expr) 3) (equal? (first expr) '-))) #t]
+    [(and (list? expr)
+          (and (equal? (length expr) 3)
+               (equal? (first expr) '-)))
+     #t]
     [else #f]))
 
 ; extract minuend from a subtraction
@@ -63,7 +69,10 @@
 ; check whether a given expression is a product
 (define (product? expr)
    (cond
-    [(and (list? expr) (and (equal? (length expr) 3) (equal? (first expr) '*))) #t]
+    [(and (list? expr)
+          (and (equal? (length expr) 3)
+               (equal? (first expr) '*)))
+     #t]
     [else #f]))
 
 ; extract first multiplier from a product
@@ -99,7 +108,10 @@
 ; check whether a given expression is a sinus
 (define (sin? expr)
    (cond
-    [(and (list? expr) (and (equal? (length expr) 2) (equal? (first expr) 'sin))) #t]
+    [(and (list? expr)
+          (and (equal? (length expr) 2)
+               (equal? (first expr) 'sin)))
+     #t]
     [else #f]))
 
 ; extract an argument from a sinus
@@ -111,7 +123,10 @@
 ; check whether a given expression is a cosinus
 (define (cos? expr)
    (cond
-    [(and (list? expr) (and (equal? (length expr) 2) (equal? (first expr) 'cos))) #t]
+    [(and (list? expr)
+          (and (equal? (length expr) 2)
+               (equal? (first expr) 'cos)))
+     #t]
     [else #f]))
 
 ; extract an argument from a cosinus
@@ -123,7 +138,10 @@
 ; check whether a given expression is a tangent
 (define (tan? expr)
    (cond
-    [(and (list? expr) (and (equal? (length expr) 2) (equal? (first expr) 'tan))) #t]
+    [(and (list? expr)
+          (and (equal? (length expr) 2)
+               (equal? (first expr) 'tan)))
+     #t]
     [else #f]))
 
 ; extract an argument from a tangent
@@ -135,7 +153,10 @@
 ; check whether a given expression is a natural logarithm
 (define (log? expr)
    (cond
-    [(and (list? expr) (and (equal? (length expr) 2) (equal? (first expr) 'log))) #t]
+    [(and (list? expr)
+          (and (equal? (length expr) 2)
+               (equal? (first expr) 'log)))
+     #t]
     [else #f]))
 
 ; extract an argument from a natural logarithm
@@ -147,13 +168,19 @@
 ; check whether a given expression is a polyvariadic sum
 (define (polyvariadic-sum? expr)
   (cond
-    [(and (list? expr) (and (> (length expr) 3) (equal? (first expr) '+))) #t]
+    [(and (list? expr)
+          (and (> (length expr) 3)
+               (equal? (first expr) '+)))
+     #t]
     [else #f]))
 
 ; check whether a given expression is a polyvariadic product
 (define (polyvariadic-product? expr)
    (cond
-    [(and (list? expr) (and (> (length expr) 3) (equal? (first expr) '*))) #t]
+    [(and (list? expr)
+          (and (> (length expr) 3)
+               (equal? (first expr) '*)))
+     #t]
     [else #f]))
 
 ; convert polyvariadic expression into prefix form
@@ -198,8 +225,7 @@
     ; Derivative for a substraction
     [(sub? expr) (list '-
                        (derivative (minuend expr) var)
-                       (derivative (subtrahend expr) var))]
-    
+                       (derivative (subtrahend expr) var))]  
 
     ; Derivative for a product
     [(product? expr) (list '+
@@ -239,6 +265,7 @@
                                (derivative (cos-arg expr) var)))]
 
     ; Derivative for a tangent
+    
     ; Division can be replaced by raising to -1 power: 1/x = x^(-1)
     [(tan? expr) (list '*
                        (list '^
@@ -259,12 +286,10 @@
     
     ; Just go through all summands and take the derivative of it.
     ; The answer will be still polyvariadic.
-    
     [(polyvariadic-sum? expr) (cons '+
                                     (map
                                      (lambda (curr) (derivative curr var))
                                      (rest expr)))]
-
 
     ; Derivative for a polyvariadic product
     
@@ -272,7 +297,6 @@
     ; by the rest multipliers and add sum it.
     ; For example, (abc)' = a'bc + ab'c + abc'.   
     ; The answer will be still polyvardic.
-    
     [(polyvariadic-product? expr)
      (cons '+
            (map
@@ -311,16 +335,18 @@
        (cond
          [(equal? (summand-1 expr) 0) (summand-2 expr)]
          [(equal? (summand-2 expr) 0) (summand-1 expr)]
-         [(and (number? (summand-1 expr)) (number? (summand-2 expr)))
-               (+ (summand-1 expr) (summand-2 expr))]
+         [(and (number? (summand-1 expr))
+               (number? (summand-2 expr)))
+          (+ (summand-1 expr) (summand-2 expr))]
          [else expr])]
 
       ; Simplify substraction
       [(sub? expr)
        (cond
          [(equal? (subtrahend expr) 0) (minuend expr)]
-         [(and (number? (minuend expr)) (number? (subtrahend expr)))
-               (- (minuend expr) (subtrahend expr))]
+         [(and (number? (minuend expr))
+               (number? (subtrahend expr)))
+          (- (minuend expr) (subtrahend expr))]
          [else expr])]
 
       ; Simplify product
@@ -330,8 +356,9 @@
          [(equal? (multiplier-2 expr) 1) (multiplier-1 expr)]
          [(equal? (multiplier-1 expr) 0) 0]
          [(equal? (multiplier-2 expr) 0) 0]
-         [(and (number? (multiplier-1 expr)) (number? (multiplier-2 expr)))
-               (* (multiplier-1 expr) (multiplier-2 expr))]
+         [(and (number? (multiplier-1 expr))
+               (number? (multiplier-2 expr)))
+          (* (multiplier-1 expr) (multiplier-2 expr))]
          [else expr])]
 
       ; Simplify exponentiation
@@ -341,8 +368,9 @@
          [(equal? (exponentiation-base expr) 1) 1]
          [(equal? (exponentiation-power expr) 0) 1]
          [(equal? (exponentiation-power expr) 1) (exponentiation-base expr)]
-         [(and (number? (exponentiation-base expr)) (number? (exponentiation-power expr)))
-               (expt (exponentiation-base expr) (exponentiation-power expr))]
+         [(and (number? (exponentiation-base expr))
+               (number? (exponentiation-power expr)))
+          (expt (exponentiation-base expr) (exponentiation-power expr))]
          [else expr])]
 
       ; Simplify sinus
