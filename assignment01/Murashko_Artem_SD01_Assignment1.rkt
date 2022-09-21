@@ -145,3 +145,28 @@
 
 (simplify '(+ (* (+ 1 0) (+ x (+ x x))) (* (+ x y) (+ 1 (+ 1 1)))))
 ; '(+ (+ x (+ x x)) (* (+ x y) 3))
+
+
+; Exercise 1.5
+; Let's implement a recursive function to-infix that converts
+; an expression into an infix form:
+
+(define (to-infix expr)
+  (cond
+    [(sum? expr)
+     (list (to-infix (summand-1 expr))
+           '+
+           (to-infix (summand-2 expr)))]
+    [(product? expr)
+     (list (to-infix (multiplier-1 expr))
+           '*
+           (to-infix (multiplier-2 expr)))]
+    [else expr]))
+
+; Test examples
+
+(to-infix '(+ (+ x (+ x x)) (* (+ x y) 3)))
+; '((x + (x + x)) + ((x + y) * 3)
+
+(to-infix '(+ (+ a b) (* c d)))
+; '((a + b) + (c * d))
