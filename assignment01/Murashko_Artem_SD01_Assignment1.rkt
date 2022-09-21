@@ -482,3 +482,17 @@
 
 (variables-of '(+ 1 x y (* x y z)))
 ; '(x y z)
+
+; Exercise 1.9
+; Implement a function gradient that returns a gradient of a multivariable
+; expression (given explicitly the list of variables).
+
+(define (gradient expr vars)
+  (map
+   (lambda (var) (simplify (derivative expr var)))
+   vars))
+
+; Test examples
+
+(gradient '(+ 1 x y (* x y z)) '(x y z))
+; '((+ 1 (* y z)) (+ 1 (* x z)) (* x y))
