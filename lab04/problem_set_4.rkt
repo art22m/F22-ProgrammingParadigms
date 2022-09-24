@@ -125,6 +125,7 @@
          '() (replicate (add1 (length lst)) lst) (inclusive-range 0 (length lst))))
 
 (splits '(a b c))
+; '(((a b c)) ((a b) c) ((a) b c) (() a b c))
 
 ; 2.c
 
@@ -175,6 +176,18 @@
 ; 5
 
 ; 3.c
+(define (top-3 vals)
+  (let ([x (list (first vals) (second vals) (third vals))])
+    (foldl (lambda (val ans)
+             (cond
+               [(< (third ans) val) (list (second ans) (third ans) val)]
+               [(< (second ans) val) (list (second ans) val (third ans))]
+               [(< (first ans) val) (list val (second ans) (third ans))]
+               [else ans]))
+           (list (- (- (apply + x) (second-max x)) (max x)) (second-max x) (max x)) (cdddr vals))))
+
+(top-3 '(5 3 6 2 8 1 0))
+; '(5 6 8)
 
 ; 3.d
 
