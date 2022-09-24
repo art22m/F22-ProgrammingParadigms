@@ -99,7 +99,7 @@
            (map (lambda (val2)
                   (cons val1 val2)) (remove val1 vals))) vals))
 
-   (foldl (lambda (val ans)
+  (foldl (lambda (val ans)
            (foldl (lambda (pair ans)
                     (cons pair ans)) ans val)) '() (helper)))
 
@@ -148,5 +148,52 @@
 (max-binary-op - '(1 2 3 4 3 2 1))
 ; '(4 . 1)
 
+; Exercise 3
 
+; 3.a
 
+(define (max vals)
+  (foldl (lambda (val ans)
+           (if (> val ans) val ans)) (first vals) vals))
+
+(max '(1 5 3 6 2 0))
+; 6
+
+; 3.b
+
+(define (second-max vals)
+  (car (foldl (lambda (val ans)
+                (cond
+                  [(< (cdr ans) val) (cons (cdr ans) val)]
+                  [(< (car ans) val) (cons val (cdr ans))]
+                  [else ans]))
+              (if (< (first vals) (second vals))
+                  (cons (first vals) (second vals))
+                  (cons (second vals) (first vals))) vals)))
+
+(second-max '(1 5 3 6 2 0))
+; 5
+
+; 3.c
+
+; 3.d
+
+(define (group vals)
+  (reverse (foldl (lambda (val ans)
+                    (cond
+                      [(empty? ans) (cons (list val) ans)]
+                      [(equal? (first (first ans)) val) (cons (cons val (first ans)) (rest ans))]
+                      [else (cons (list val) ans)]))
+                  '() vals)))
+
+(group '(a b b c c c b a a))
+; '((a) (b b) (c c c) (b) (a a))
+
+; 3.e
+
+(define (cumulative-sums vals)
+  (reverse (foldl (lambda (val ans)
+                    (cons (+ val (car ans)) ans)) '(0) vals)))
+
+(cumulative-sums '(1 2 3 4 5))
+; (0 1 3 6 10 15)
