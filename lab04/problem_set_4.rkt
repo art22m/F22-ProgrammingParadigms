@@ -8,10 +8,10 @@
 
 ; Let me introduce helper functions:
 (define (remove-first-n vals num)
-    (cond
-      [(empty? vals) vals]
-      [(<= num 0) vals]
-      [else (remove-first-n (rest vals) (sub1 num))]))
+  (cond
+    [(empty? vals) vals]
+    [(<= num 0) vals]
+    [else (remove-first-n (rest vals) (sub1 num))]))
 
 (define (get-first-n vals num ans)
   (cond
@@ -89,5 +89,64 @@
 (windows '(a b c d e) 3)
 ; '((a b c) (b c d) (c d e))
 
+; Exercise 2
 
-  
+; Let me introduce helper functions:
+
+(define (all-pairs vals)
+  (define (helper)
+    (map (lambda (val1)
+           (map (lambda (val2)
+                  (cons val1 val2)) (remove val1 vals))) vals))
+
+   (foldl (lambda (val ans)
+           (foldl (lambda (pair ans)
+                    (cons pair ans)) ans val)) '() (helper)))
+
+; 2.a
+
+(define (pairs vals)
+  (define (helper)
+    (map (lambda (val1)
+           (map (lambda (val2)
+                  (cons val1 val2)) (remove val1 vals))) vals))
+
+  (foldl (lambda (val ans)
+           (foldl (lambda (pair ans)
+                    (cons pair (remove (cons (cdr pair) (car pair)) ans))) ans val)) '() (helper)))
+
+(pairs '(a b c d))
+; '((a . b) (a . c) (a . d) (b . c) (b . d) (c . d))
+
+; 2.b
+(define (splits lst)
+  (foldl (lambda (sublst n ans)
+           (append (cons (split sublst n) '()) ans))
+         '() (replicate (add1 (length lst)) lst) (inclusive-range 0 (length lst))))
+
+(splits '(a b c))
+
+; 2.c
+
+(define (max-product vals)
+  (foldl (lambda (val ans)
+           (if (> (* (car val) (cdr val)) (* (car ans) (cdr ans))) val ans)) (first (all-pairs vals)) (all-pairs vals)))
+
+(max-product '(1 2 3 4 3 2 1))
+; '(3 . 4)
+
+; 2.d
+
+(define (max-binary-op op vals)
+  (foldl (lambda (val ans)
+           (if (> (op (car val) (cdr val)) (op (car ans) (cdr ans))) val ans)) (first (all-pairs vals)) (all-pairs vals)))
+
+
+(max-binary-op * '(1 2 3 4 3 2 1))
+; '(3 . 4)
+
+(max-binary-op - '(1 2 3 4 3 2 1))
+; '(4 . 1)
+
+
+
