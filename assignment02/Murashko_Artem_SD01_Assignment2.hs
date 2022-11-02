@@ -8,7 +8,7 @@
 main :: IO ()
 main = print()
 
--- Part 1.1 Lines
+-- 1.1 Lines
 
 -- A line with a focus.
 -- Line xs y zs represents a descrete line:
@@ -79,7 +79,7 @@ zipLinesWith func (Line xs1 y1 zs1) (Line xs2 y2 zs2) = Line (zipWith func xs1 x
 test1_zipLinesWith = cutLine 5 (zipLinesWith (*) integers integers) -- Line [1,4,9,16,25] 0 [1,4,9,16,25]
 
 
--- Part 1.2 Rule 30
+-- 1.2 Rule 30
 
 -- Alive = 1 | Dead = 0
 -- current pattern	           111 110 101 100 011 010 001 000
@@ -153,7 +153,6 @@ applyRule30 line = mapLine rule30 (lineShifts line)
 -- Line [Dead,Dead,Alive,Alive] Alive [Dead,Dead,Dead,Alive]
 test1_applyRule30 = cutLine 4 $ applyRule30 (Line ([Dead, Alive, Alive] ++ repeat Dead) Alive ([Alive, Alive, Alive] ++ repeat Dead)) 
 
-
 -- -- Exercise 1.8
 
 -- -- Helpers 
@@ -208,7 +207,7 @@ test1_applyRule30 = cutLine 4 $ applyRule30 (Line ([Dead, Alive, Alive] ++ repea
 -- -- main = drawingOf (renderRule30 8 (Line [Dead, Dead, Dead, Dead, Dead, Dead, Dead] Alive [Dead, Dead, Dead, Dead, Dead, Dead, Dead]))
 
 
--- Part 1.3 Discrete spaces
+-- 1.3 Discrete spaces
 -- A discrete 2D space can be represented by a (vertical) line of (horizontal) lines:
 -- A 2D space is merely a (vertical) line, where each element is a (horizontal) line.
 
@@ -261,11 +260,10 @@ test2_zipSpacesWith = zipSpacesWith (\x y -> 2*x + y) integers_space integers_sp
 -- rule30Space :: Space Cell -> Cell
 -- rule30Space (Space(Line left (Line _ y _) right)) = rule30 (Line (getFocuses left) y (getFocuses right))
 
--- Part 1.4 Conway’s Game of Life
+-- 1.4 Conway’s Game of Life
 
-cellsLine1 = (Line [Dead, Alive] Dead [Alive, Alive])
-cellsLine2 = (Line [Dead, Alive] Alive [Alive, Alive])
-cellSpace = Space (Line [cellsLine1, cellsLine2] cellsLine2 [cellsLine1, cellsLine1])
+cellsLine1 = (Line [Dead, Alive, Alive] Dead [Alive, Alive, Alive])
+cellsLine2 = (Line [Dead, Alive, Alive] Alive [Alive, Alive, Alive])
 
 -- Exercise 1.12 
 -- Function computes next state of a focuses for given space, according to the rules of Conway’s Game of Life:
@@ -304,15 +302,12 @@ conwayRule (Space(Line left (Line xs y ys) right)) = getConwayRuleState y (count
     countAliveNeighborsWithFocus (Line [] f (r:_)) = (cellToInt f) + (cellToInt r)
     countAliveNeighborsWithFocus (Line (l:_) f (r:_)) = (cellToInt l) + (cellToInt f) + (cellToInt r)
 
-test1_conwayRule = conwayRule cellSpace -- Alive
 
 -- Exercise 1.13
 
--- Helpers 
-
--- Shifts the focus on the space to the top by one position (if possible)
-shiftSpaceTop :: Space a -> Maybe (Space a)
-shiftSpaceTop (Space (Line left focus right)) = helper (shiftLeft focus) (Line left focus right)
+-- Shifts the focus on the space to the left by one position (if possible)
+shiftSpaceLeft :: Space a -> Maybe (Space a)
+shiftSpaceLeft (Space (Line left focus right)) = helper (shiftLeft focus) (Line left focus right)
     where 
         helper :: Maybe (Line a) -> Line (Line a) -> Maybe (Space a)
         helper Nothing _ = Nothing
@@ -322,9 +317,9 @@ shiftSpaceTop (Space (Line left focus right)) = helper (shiftLeft focus) (Line l
         shift (Line (x:xs) y zs) = (Line xs x (y : zs))
         shift line = line -- impossible with check (not good)
 
--- Shifts the focus on the space to the botoom by one position (if possible)
-shiftSpaceBottom :: Space a -> Maybe (Space a)
-shiftSpaceBottom (Space (Line left focus right)) = helper (shiftRight focus) (Line left focus right)
+-- Shifts the focus on the space to the right by one position (if possible)
+shiftSpaceRight :: Space a -> Maybe (Space a)
+shiftSpaceRight (Space (Line left focus right)) = helper (shiftLeft focus) (Line left focus right)
     where 
         helper :: Maybe (Line a) -> Line (Line a) -> Maybe (Space a)
         helper Nothing _ = Nothing
@@ -334,54 +329,16 @@ shiftSpaceBottom (Space (Line left focus right)) = helper (shiftRight focus) (Li
         shift (Line xs y (z:zs)) = (Line (y : xs) z zs)
         shift line = line -- impossible with check (not good)
 
--- Shifts the focus on the space to the left by one position (if possible)
-shiftSpaceLeft :: Space a -> Maybe (Space a)
-shiftSpaceLeft (Space line) = helper (shiftLeft line)
-    where
-        helper :: Maybe (Line (Line a)) -> Maybe (Space a)
-        helper Nothing = Nothing
-        helper (Just line) = Just (Space line)
-
--- Shifts the focus on the space to the right by one position (if possible)
-shiftSpaceRight :: Space a -> Maybe (Space a)
-shiftSpaceRight (Space line) = helper (shiftRight line)
-    where
-        helper :: Maybe (Line (Line a)) -> Maybe (Space a)
-        helper Nothing = Nothing
-        helper (Just line) = Just (Space line)
-
 -- Function that converts each cell in a discrete space into a version of the original space with focus shifted to that cell. 
 -- The new space (of spaces) must have the original space in focus.
 
-spaceShifts :: Space a -> Space (Space a)
-spaceShifts space = helperHorizontal space
-    where 
-        helperVertical :: Space a -> Line (Space a)
-        helperVertical space = (Line (helperTop (shiftSpaceTop space)) space (helperBottom (shiftSpaceBottom space)))
-            where
-                helperTop :: Maybe (Space a) -> [Space a]
-                helperTop Nothing = []
-                helperTop (Just space) = space : (helperTop (shiftSpaceTop space))
+-- spaceShifts :: Space a -> Space (Space a)
+-- spaceShifts space = Space (helperLeft (shiftSpaceLeft space)) space (helperRight (shiftSpaceRight space))
+--     where
+--         helperLeft :: Maybe(Space a) -> [Space a]
+--         helperLeft Nothing = []
+--         helperLeft (Just space) = space : (helperLeft (shiftSpaceLeft space))
 
-                helperBottom :: Maybe (Space a) -> [Space a]
-                helperBottom Nothing = []
-                helperBottom (Just space) = space : (helperBottom (shiftSpaceBottom space))
-            
-        helperHorizontal :: Space a -> Space (Space a) 
-        helperHorizontal space = Space (Line (helperLeft (shiftSpaceLeft space)) (helperVertical space) (helperRight (shiftSpaceRight space)))
-            where 
-                helperLeft :: Maybe (Space a) -> [Line (Space a)]
-                helperLeft Nothing = []
-                helperLeft (Just space) = (helperVertical space) : (helperLeft (shiftSpaceLeft space))
-
-                helperRight :: Maybe (Space a) -> [Line (Space a)]
-                helperRight Nothing = []
-                helperRight (Just space) = (helperVertical space) : (helperRight (shiftSpaceRight space))
-
-test1_spaceShifts = spaceShifts cellSpace
-
--- With spaceShifts, we can now simply apply conwayRule to each shifted version of the space to get new state for every cell:
-applyConwayRule :: Space Cell -> Space Cell
-applyConwayRule space = mapSpace conwayRule (spaceShifts space)
-
-test1_applyConwayRule = applyConwayRule cellSpace
+--         helperRight :: Maybe(Space a) -> [Space a]
+--         helperRight Nothing = []
+--         helperRight (Just space) = space : (helperRight (shiftSpaceRight space))
