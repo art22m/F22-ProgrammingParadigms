@@ -1,12 +1,11 @@
-{-# OPTIONS_GHC -Wall #-}
+-- {-# OPTIONS_GHC -Wall #-}
 -- Murashko Artem SD20-01 --
 -- Programming Paradigms Fall 2022 --
 -- Homework Assignment 02 -- 
 
--- import CodeWorld
+import CodeWorld
 
 main :: IO ()
-main = print()
 
 -- Part 1.1 Lines
 
@@ -154,58 +153,58 @@ applyRule30 line = mapLine rule30 (lineShifts line)
 test1_applyRule30 = cutLine 4 $ applyRule30 (Line ([Dead, Alive, Alive] ++ repeat Dead) Alive ([Alive, Alive, Alive] ++ repeat Dead)) 
 
 
--- -- Exercise 1.8
+-- Exercise 1.8
 
--- -- Helpers 
+-- Helpers 
 
--- -- rectangle side size
--- recSize :: Double
--- recSize = 2 
+-- rectangle side size
+recSize :: Double
+recSize = 2 
 
--- -- black rectagle, i.e. alive cell
--- blackSquare :: Picture
--- blackSquare = (colored black (solidRectangle (recSize - 0.1) (recSize - 0.1)))
+-- black rectagle, i.e. alive cell
+blackSquare :: Picture
+blackSquare = (colored black (solidRectangle (recSize - 0.1) (recSize - 0.1)))
 
--- -- white rectagle, i.e. dead cell
--- whiteSquare :: Picture
--- whiteSquare = (rectangle (recSize - 0.12) (recSize - 0.12))
+-- white rectagle, i.e. dead cell
+whiteSquare :: Picture
+whiteSquare = (rectangle (recSize - 0.12) (recSize - 0.12))
 
--- -- transforms line of cells to line of pictures
--- toLineOfPictures :: Line Cell -> Line Picture
--- toLineOfPictures line = mapLine (\x -> toPicture x) line
---   where
---     toPicture :: Cell -> Picture
---     toPicture Alive = blackSquare
---     toPicture Dead = whiteSquare
+-- transforms line of cells to line of pictures
+toLineOfPictures :: Line Cell -> Line Picture
+toLineOfPictures line = mapLine (\x -> toPicture x) line
+  where
+    toPicture :: Cell -> Picture
+    toPicture Alive = blackSquare
+    toPicture Dead = whiteSquare
 
--- -- render list of squares from left to right
--- renderPicturesListRight :: [Picture] -> Picture 
--- renderPicturesListRight [] = blank
--- renderPicturesListRight (pic:pics) = pic <> (translated recSize 0 (renderPicturesListRight pics))
+-- render list of squares from left to right
+renderPicturesListRight :: [Picture] -> Picture 
+renderPicturesListRight [] = blank
+renderPicturesListRight (pic:pics) = pic <> (translated recSize 0 (renderPicturesListRight pics))
 
--- -- render list of squares from right to left 
--- renderPicturesListLeft :: [Picture] -> Picture 
--- renderPicturesListLeft [] = blank
--- renderPicturesListLeft (pic:pics) = pic <> (translated (negate recSize) 0 (renderPicturesListLeft pics))
+-- render list of squares from right to left 
+renderPicturesListLeft :: [Picture] -> Picture 
+renderPicturesListLeft [] = blank
+renderPicturesListLeft (pic:pics) = pic <> (translated (negate recSize) 0 (renderPicturesListLeft pics))
 
--- -- Render a line of 1x1 pictures.
--- renderLine :: Line Picture -> Picture
--- renderLine (Line xs y zs) = leftPicture <> y <> rightPicture
---   where 
---       leftPicture :: Picture
---       leftPicture = (translated (negate recSize) 0 (renderPicturesListLeft xs))
+-- Render a line of 1x1 pictures.
+renderLine :: Line Picture -> Picture
+renderLine (Line xs y zs) = leftPicture <> y <> rightPicture
+  where 
+      leftPicture :: Picture
+      leftPicture = (translated (negate recSize) 0 (renderPicturesListLeft xs))
       
---       rightPicture :: Picture
---       rightPicture = (translated recSize 0 (renderPicturesListRight zs))
+      rightPicture :: Picture
+      rightPicture = (translated recSize 0 (renderPicturesListRight zs))
       
--- -- Render the fist N steps of Rule 30, applied to a given starting line.
--- renderRule30 :: Int -> Line Cell -> Picture
--- renderRule30 n line
---   | n > 1 = renderLine (toLineOfPictures line) <> (translated 0 (negate recSize) (renderRule30 (n - 1) (applyRule30 line)))
---   | otherwise = renderLine (toLineOfPictures line)
+-- Render the fist N steps of Rule 30, applied to a given starting line.
+renderRule30 :: Int -> Line Cell -> Picture
+renderRule30 n line
+  | n > 1 = renderLine (toLineOfPictures line) <> (translated 0 (negate recSize) (renderRule30 (n - 1) (applyRule30 line)))
+  | otherwise = renderLine (toLineOfPictures line)
 
--- -- Test examples:
--- -- main = drawingOf (renderRule30 8 (Line [Dead, Dead, Dead, Dead, Dead, Dead, Dead] Alive [Dead, Dead, Dead, Dead, Dead, Dead, Dead]))
+-- Test examples:
+-- main = drawingOf (renderRule30 8 (Line [Dead, Dead, Dead, Dead, Dead, Dead, Dead] Alive [Dead, Dead, Dead, Dead, Dead, Dead, Dead]))
 
 
 -- Part 1.3 Discrete spaces
@@ -260,6 +259,7 @@ test2_zipSpacesWith = zipSpacesWith (\x y -> 2*x + y) integers_space integers_sp
 
 -- rule30Space :: Space Cell -> Cell
 -- rule30Space (Space(Line left (Line _ y _) right)) = rule30 (Line (getFocuses left) y (getFocuses right))
+
 
 -- Part 1.4 Conway’s Game of Life
 
@@ -320,7 +320,7 @@ shiftSpaceTop (Space (Line left focus right)) = helper (shiftLeft focus) (Line l
 
         shift :: Line a -> Line a
         shift (Line (x:xs) y zs) = (Line xs x (y : zs))
-        shift line = line -- impossible with check (not good)
+        shift line = line -- impossible with check (still not good)
 
 -- Shifts the focus on the space to the botoom by one position (if possible)
 shiftSpaceBottom :: Space a -> Maybe (Space a)
@@ -332,7 +332,7 @@ shiftSpaceBottom (Space (Line left focus right)) = helper (shiftRight focus) (Li
 
         shift :: Line a -> Line a
         shift (Line xs y (z:zs)) = (Line (y : xs) z zs)
-        shift line = line -- impossible with check (not good)
+        shift line = line -- impossible with check (still not good)
 
 -- Shifts the focus on the space to the left by one position (if possible)
 shiftSpaceLeft :: Space a -> Maybe (Space a)
@@ -352,7 +352,6 @@ shiftSpaceRight (Space line) = helper (shiftRight line)
 
 -- Function that converts each cell in a discrete space into a version of the original space with focus shifted to that cell. 
 -- The new space (of spaces) must have the original space in focus.
-
 spaceShifts :: Space a -> Space (Space a)
 spaceShifts space = helperHorizontal space
     where 
@@ -378,6 +377,7 @@ spaceShifts space = helperHorizontal space
                 helperRight Nothing = []
                 helperRight (Just space) = (helperVertical space) : (helperRight (shiftSpaceRight space))
 
+-- Too long output =)
 test1_spaceShifts = spaceShifts cellSpace
 
 -- With spaceShifts, we can now simply apply conwayRule to each shifted version of the space to get new state for every cell:
@@ -387,3 +387,52 @@ applyConwayRule space = mapSpace conwayRule (spaceShifts space)
 -- Space (Line [Line [Dead,Alive] Dead [Dead,Dead],Line [Alive,Dead] Alive [Dead,Alive]] 
 -- (Line [Dead,Alive] Alive [Dead,Dead]) [Line [Dead,Alive] Dead [Dead,Dead],Line [Dead,Dead] Dead [Alive,Alive]])
 test1_applyConwayRule = applyConwayRule cellSpace
+
+
+-- Exercise 1.14
+
+-- Helpers 
+
+cellSpaceToPictureSpace :: Space Cell -> Space Picture
+cellSpaceToPictureSpace space = mapSpace cellToPicture space
+  where
+    cellToPicture :: Cell -> Picture
+    cellToPicture Alive = blackSquare
+    cellToPicture Dead = whiteSquare
+
+-- Render a space of 1x1 pictures.
+renderSpace :: Space Picture -> Picture
+renderSpace (Space (Line left focus right)) = (leftPicture left) <> (renderLine focus) <> (rightPicture right)
+    where
+        leftPicture :: [Line Picture] -> Picture 
+        leftPicture rows = (translated 0 (negate recSize) (renderList rows (negate recSize)))
+        
+        rightPicture :: [Line Picture] -> Picture 
+        rightPicture rows = (translated 0 recSize (renderList rows recSize))
+        
+        renderList :: [Line Picture] -> Double -> Picture
+        renderList [] _ = blank
+        renderList (x:xs) step = (renderLine x) <> (translated 0 step (renderList xs step))
+        
+-- Render the fist N steps of Conway's Game of Life, applied to a given starting space.
+renderConway :: Int -> Space Cell -> Picture
+renderConway n conway
+  | n > 1 = renderConway (n - 1) (applyConwayRule conway)
+  | otherwise = (renderSpace (cellSpaceToPictureSpace conway))
+ 
+-- https://hackage.haskell.org/package/codeworld-api-0.2.0.0/docs/CodeWorld.html
+-- Function animationOf shows an animation, with a picture for each time given by the parameter.
+-- animationOf :: (Double -> Picture) -> IO ()
+
+-- Animate Conway's Game of Life, -- starting with a given space
+-- and updating it every second. 
+animateConway :: Space Cell -> IO ()
+animateConway space = animationOf helper
+  where
+    helper :: Double -> Picture
+    helper seconds = (renderConway (floor seconds) space)
+    
+    
+-- Testing Playground
+
+main = drawingOf (renderRule30 8 (Line [Dead, Dead, Dead, Dead, Dead, Dead, Dead] Alive [Dead, Dead, Dead, Dead, Dead, Dead, Dead]))
