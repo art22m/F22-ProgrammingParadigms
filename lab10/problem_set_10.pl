@@ -75,10 +75,3 @@ mult(s(X), Y, Z) :- mult(X, Y, M), add(Y, M, Z).
 % Implement a predicate powerOf2/2 such that powerOf2(N, M) is true when M is equal to 2 to the power of N:
 powerOf2(z, s(z)).
 powerOf2(s(N), M) :- leq(s(z), M), double(Z, M), powerOf2(N, Z).
-    
-    
-    
-    
-    
-    
-    
